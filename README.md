@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CLIC
 
 **Continuous-Time Fixed-Lag Smoothing for LiDAR-Inertial-Camera SLAM**
@@ -86,3 +87,6 @@ Thanks for their excellent job!
 ### Licence
 
 The code is released under the [GNU General Public License v3 (GPL-3)](https://www.gnu.org/licenses/gpl-3.0.txt).
+=======
+# Clic-mid360
+>>>>>>> 2ba2d2fc958dbc1e87f4a5f4890330c737d7005d

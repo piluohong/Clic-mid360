@@ -1,4 +1,4 @@
-<<<<<<个人学习，感谢浙大APRIL_AB的开源工作
+<<<<<<个人学习，感谢浙大APRIL_LAB的开源工作
 # CLIC
 
 **Continuous-Time Fixed-Lag Smoothing for LiDAR-Inertial-Camera SLAM**

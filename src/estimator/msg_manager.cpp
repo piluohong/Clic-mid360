@@ -31,6 +31,7 @@ MsgManager::MsgManager(const YAML::Node& node, ros::NodeHandle& nh)
       t_offset_lidar_(0),
       cur_imu_timestamp_(-1),
       use_image_(false),
+      if_normalized_(false),
       image_topic_("") {
   std::string config_path = node["config_path"].as<std::string>();
 
@@ -46,6 +47,7 @@ MsgManager::MsgManager(const YAML::Node& node, ros::NodeHandle& nh)
   std::string imu_yaml = node["imu_yaml"].as<std::string>();
   YAML::Node imu_node = YAML::LoadFile(config_path + imu_yaml);
   imu_topic_ = imu_node["imu_topic"].as<std::string>();
+  if_normalized_ = imu_node["if_normalized"].as<bool>();
 
   double imu_frequency = node["imu_frequency"].as<double>();
   imu_period_s_ = 1. / imu_frequency;

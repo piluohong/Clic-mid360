@@ -165,16 +165,25 @@ class MsgManager {
   cv_bridge::CvImageConstPtr GetLatestImage() {
     return feature_tracker_node_->GetLatestImage();
   }
-
-  static void IMUMsgToIMUData(const sensor_msgs::Imu::ConstPtr& imu_msg,
+ 
+  inline void IMUMsgToIMUData(const sensor_msgs::Imu::ConstPtr& imu_msg,  // X static
                               IMUData& data) {
     data.timestamp = imu_msg->header.stamp.toSec();
     data.gyro = Eigen::Vector3d(imu_msg->angular_velocity.x,
                                 imu_msg->angular_velocity.y,
                                 imu_msg->angular_velocity.z);
-    data.accel = Eigen::Vector3d(imu_msg->linear_acceleration.x * 9.8,
-                                 imu_msg->linear_acceleration.y * 9.8,
-                                 imu_msg->linear_acceleration.z * 9.8); // mid360回復 m/s^2
+    if (if_normalized_)
+    {
+      data.accel = Eigen::Vector3d(imu_msg->linear_acceleration.x * 9.81,
+                                    imu_msg->linear_acceleration.y * 9.81,
+                                    imu_msg->linear_acceleration.z * 9.81);
+                                    // printf("111\n");
+    }
+    else{
+      data.accel = Eigen::Vector3d(imu_msg->linear_acceleration.x,
+                                 imu_msg->linear_acceleration.y,
+                                 imu_msg->linear_acceleration.z);
+      }// mid360回復 m/s^2
     Eigen::Vector4d q(imu_msg->orientation.w, imu_msg->orientation.x,
                       imu_msg->orientation.y, imu_msg->orientation.z);
     if (std::fabs(q.norm() - 1) < 0.01) {
@@ -212,6 +221,7 @@ class MsgManager {
                       int lidar_id);
 
  public:
+  bool if_normalized_;
   bool has_valid_msg_;
 
   std::string bag_path_;
@@ -237,6 +247,7 @@ class MsgManager {
   std::vector<double> lidar_max_timestamps_;
 
   bool use_image_;
+  
 
   std::string imu_topic_;
   int num_lidars_;

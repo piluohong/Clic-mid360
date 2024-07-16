@@ -159,20 +159,22 @@ bool LivoxFeatureExtraction::ParsePointCloudNoFeature(
     in_cloud_vec[i]->reserve(plsize);
   }
 
-   for (uint i = 1; i < plsize; i++) {
-     if ((lidar_msg->points[i].line < n_scan) && ((lidar_msg->points[i].tag & 0x30) == 0x10 || (lidar_msg->points[i].tag & 0x30) == 0x00)) 
-     {
-      (*p_full_cloud)[i].x = lidar_msg->points[i].x;
-      (*p_full_cloud)[i].y = lidar_msg->points[i].y;
-      (*p_full_cloud)[i].z = lidar_msg->points[i].z;
-      (*p_full_cloud)[i].intensity = lidar_msg->points[i].reflectivity;
-      (*p_full_cloud)[i].time = lidar_msg->points[i].offset_time * 1e-9;
-      if (((abs((*p_full_cloud)[i].x - (*p_full_cloud)[i - 1].x) > 1e-7) || (abs((*p_full_cloud)[i].y - (*p_full_cloud)[i - 1].y) > 1e-7) || (abs((*p_full_cloud)[i].z - (*p_full_cloud)[i - 1].z) > 1e-7)) && ((*p_full_cloud)[i].x * (*p_full_cloud)[i].x + (*p_full_cloud)[i].y * (*p_full_cloud)[i].y + (*p_full_cloud)[i].z * (*p_full_cloud)[i].z > (blind * blind)))
-      {
-        p_surface_cloud->push_back((*p_full_cloud)[i]);
-        in_cloud_vec[lidar_msg->points[i].line]->push_back((*p_full_cloud)[i]);
-      }
+  for (uint i = 1; i < plsize; i++) {
+    if ((lidar_msg->points[i].line < n_scan) && ((lidar_msg->points[i].tag & 0x30) == 0x10 || (lidar_msg->points[i].tag & 0x30) == 0x00)) 
+    {
+    (*p_full_cloud)[i].x = lidar_msg->points[i].x;
+    (*p_full_cloud)[i].y = lidar_msg->points[i].y;
+    (*p_full_cloud)[i].z = lidar_msg->points[i].z;
+    (*p_full_cloud)[i].intensity = lidar_msg->points[i].reflectivity;
+    (*p_full_cloud)[i].time = lidar_msg->points[i].offset_time * 1e-9;
+    
+    if (((abs((*p_full_cloud)[i].x - (*p_full_cloud)[i - 1].x) > 1e-7) || (abs((*p_full_cloud)[i].y - (*p_full_cloud)[i - 1].y) > 1e-7) || (abs((*p_full_cloud)[i].z - (*p_full_cloud)[i - 1].z) > 1e-7)) && ((*p_full_cloud)[i].x * (*p_full_cloud)[i].x + (*p_full_cloud)[i].y * (*p_full_cloud)[i].y + (*p_full_cloud)[i].z * (*p_full_cloud)[i].z > (blind * blind)))
+    {
+      p_surface_cloud->push_back((*p_full_cloud)[i]);
+      in_cloud_vec[lidar_msg->points[i].line]->push_back((*p_full_cloud)[i]);
+      // in_cloud_vec[0]->push_back((*p_full_cloud)[i]);
     }
+  }
   }
   if (in_cloud_vec[0]->size() <= 7) {
     LOG(WARNING) << "[ParsePointCloud] input cloud size too small "

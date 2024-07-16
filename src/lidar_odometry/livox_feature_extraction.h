@@ -32,8 +32,8 @@
 #include <livox_ros_driver2/CustomMsg.h>
 
 #include <cmath>
-// #define M_PI 3.14159265358979
-#define IS_VALID(a) ((abs(a) > 1e8) ? true : false)
+#define M_PI 3.14159265358979
+#define IS_VALID(a) ((abs(a) > 1e8) ? true : false) // 無效測距點
 
 namespace clic {
 

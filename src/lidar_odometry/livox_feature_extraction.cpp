@@ -56,12 +56,12 @@ LivoxFeatureExtraction::LivoxFeatureExtraction(const YAML::Node& node,
   pub_full_cloud = nh.advertise<sensor_msgs::PointCloud2>("full_cloud", 10);
   pub_feature_cloud = nh.advertise<clic::feature_cloud>("feature_cloud", 10);
 
-  if (work_mode == MODE::Odometry_Online) {
-    std::string lidar_topic = node["lidar0"]["topic"].as<std::string>();
-    sub_lidar =
-        nh.subscribe(lidar_topic, 5, &LivoxFeatureExtraction::LivoxHandler,
-                     this, ros::TransportHints().tcpNoDelay());
-  }
+  // if (work_mode == MODE::Odometry_Online) {
+  //   std::string lidar_topic = node["lidar0"]["topic"].as<std::string>();
+  //   sub_lidar =
+  //       nh.subscribe(lidar_topic, 5, &LivoxFeatureExtraction::LivoxHandler,
+  //                    this, ros::TransportHints().tcpNoDelay());
+  // }
 
   AllocateMemory();
   // clearState();
@@ -141,7 +141,7 @@ bool LivoxFeatureExtraction::ParsePointCloud(
   return true;
 }
 
-
+// mid360
 bool LivoxFeatureExtraction::ParsePointCloudNoFeature(
     const livox_ros_driver2::CustomMsg::ConstPtr& lidar_msg,
     RTPointCloud::Ptr out_cloud) {
@@ -172,13 +172,6 @@ bool LivoxFeatureExtraction::ParsePointCloudNoFeature(
         p_surface_cloud->push_back((*p_full_cloud)[i]);
         in_cloud_vec[lidar_msg->points[i].line]->push_back((*p_full_cloud)[i]);
       }
-
-
-      // if ((std::abs((*p_full_cloud)[i].x - (*p_full_cloud)[i - 1].x) > 1e-7) ||
-      //     (std::abs((*p_full_cloud)[i].y - (*p_full_cloud)[i - 1].y) > 1e-7) ||
-      //     (std::abs((*p_full_cloud)[i].z - (*p_full_cloud)[i - 1].z) > 1e-7)) {
-      //   in_cloud_vec[lidar_msg->points[i].line]->push_back((*p_full_cloud)[i]);
-      // }
     }
   }
   if (in_cloud_vec[0]->size() <= 7) {
@@ -192,114 +185,93 @@ bool LivoxFeatureExtraction::ParsePointCloudNoFeature(
   for (auto const& v : in_cloud_vec) {
     *out_cloud += (*v);
   }
-  
-  // std::vector<std::vector<orgtype>> typess(n_scan);
-  // for (int j = 0; j < n_scan; j++) {
-  //   RTPointCloud& pl = (*in_cloud_vec[j]);
-  //   vector<orgtype>& types = typess[j];
-  //   plsize = pl.size();
-  //   types.resize(plsize);
-  //   plsize--;
-  //   for (uint i = 0; i < plsize; i++) {
-  //     types[i].range = sqrt(pl[i].x * pl[i].x + pl[i].y * pl[i].y);
-  //     vx = pl[i].x - pl[i + 1].x;
-  //     vy = pl[i].y - pl[i + 1].y;
-  //     vz = pl[i].z - pl[i + 1].z;
-  //     types[i].dista = vx * vx + vy * vy + vz * vz;
-  //     // std::cout<<vx<<" "<<vx<<" "<<vz<<" "<<std::endl;
-  //   }
-  //   // plsize++;
-  //   types[plsize].range =
-  //       sqrt(pl[plsize].x * pl[plsize].x + pl[plsize].y * pl[plsize].y);
-
-  //   giveFeature(pl, types, *p_corner_cloud, *p_surface_cloud);
-  // }
-
-  // for (auto const& v : in_cloud_vec) {
-  //   *out_cloud += (*v);
-  // }
 
   PublishCloud("map");
   return true;
 }
 
-// test
-void LivoxFeatureExtraction::LivoxHandler(
-    const livox_ros_driver2::CustomMsg::ConstPtr& lidar_msg) {
-  clearState();
+// test sub_lidar /*No features*/
+// void LivoxFeatureExtraction::LivoxHandler(
+//     const livox_ros_driver2::CustomMsg::ConstPtr& lidar_msg) {
+//   clearState();
 
-  std::vector<RTPointCloud::Ptr> out_cloud;
-  for (int i = 0; i < GetScanNumber(); i++) {
-    boost::shared_ptr<RTPointCloud> ptr(new RTPointCloud);
-    out_cloud.push_back(ptr);
-  }
+//   std::vector<RTPointCloud::Ptr> out_cloud;
+//   for (int i = 0; i < GetScanNumber(); i++) {
+//     boost::shared_ptr<RTPointCloud> ptr(new RTPointCloud);
+//     out_cloud.push_back(ptr);
+//   }
 
-  std::vector<std::vector<orgtype>> typess(n_scan);
-  int cloud_size = lidar_msg->point_num;
-  p_full_cloud->resize(cloud_size);
-  p_corner_cloud->reserve(cloud_size);
-  p_surface_cloud->reserve(cloud_size);
+//   std::vector<std::vector<orgtype>> typess(n_scan);
+//   int cloud_size = lidar_msg->point_num;
+//   p_full_cloud->resize(cloud_size);
+//   p_corner_cloud->reserve(cloud_size);
+//   p_surface_cloud->reserve(cloud_size);
 
-  for (int i = 0; i < n_scan; i++) {
-    out_cloud[i]->reserve(cloud_size);
-  }
+//   for (int i = 0; i < n_scan; i++) {
+//     out_cloud[i]->reserve(cloud_size);
+//   }
 
-  for (int i = 1; i < cloud_size; i++) {
-    if ((lidar_msg->points[i].line < n_scan) &&
-        ((lidar_msg->points[i].tag & 0x30) == 0x10) &&
-        (!IS_VALID(lidar_msg->points[i].x)) &&
-        (!IS_VALID(lidar_msg->points[i].y)) &&
-        (!IS_VALID(lidar_msg->points[i].z))) {
-      p_full_cloud->points[i].x = lidar_msg->points[i].x;
-      p_full_cloud->points[i].y = lidar_msg->points[i].y;
-      p_full_cloud->points[i].z = lidar_msg->points[i].z;
-      p_full_cloud->points[i].intensity = lidar_msg->points[i].reflectivity;
-      p_full_cloud->points[i].time =
-          lidar_msg->points[i].offset_time / float(1000000000);
-      //      p_full_cloud->points[i].time =
-      //          (lidar_msg->timebase + lidar_msg->points[i].offset_time) /
-      //          float(1000000);
+//   for (int i = 1; i < cloud_size; i++) {
+//     // if ((lidar_msg->points[i].line < n_scan) &&
+//     //     ((lidar_msg->points[i].tag & 0x30) == 0x10) &&
+//     //     (!IS_VALID(lidar_msg->points[i].x)) &&
+//     //     (!IS_VALID(lidar_msg->points[i].y)) &&
+//     //     (!IS_VALID(lidar_msg->points[i].z))) 
+//     if ((lidar_msg->points[i].line < n_scan) && ((lidar_msg->points[i].tag & 0x30) == 0x10 || (lidar_msg->points[i].tag & 0x30) == 0x00))
+//     {
+//       p_full_cloud->points[i].x = lidar_msg->points[i].x;
+//       p_full_cloud->points[i].y = lidar_msg->points[i].y;
+//       p_full_cloud->points[i].z = lidar_msg->points[i].z;
+//       p_full_cloud->points[i].intensity = lidar_msg->points[i].reflectivity;
+//       p_full_cloud->points[i].time =lidar_msg->points[i].offset_time / float(1000000000);
+//       //      p_full_cloud->points[i].time =
+//       //          (lidar_msg->timebase + lidar_msg->points[i].offset_time) /
+//       //          float(1000000);
 
-      if ((std::abs(p_full_cloud->points[i].x - p_full_cloud->points[i - 1].x) >
-           1e-7) ||
-          (std::abs(p_full_cloud->points[i].y - p_full_cloud->points[i - 1].y) >
-           1e-7) ||
-          (std::abs(p_full_cloud->points[i].z - p_full_cloud->points[i - 1].z) >
-           1e-7)) {
-        out_cloud[lidar_msg->points[i].line]->push_back(
-            p_full_cloud->points[i]);
-      }
-    }
-  }
+//       if ((std::abs(p_full_cloud->points[i].x - p_full_cloud->points[i - 1].x) >
+//            1e-7) ||
+//           (std::abs(p_full_cloud->points[i].y - p_full_cloud->points[i - 1].y) >
+//            1e-7) ||
+//           (std::abs(p_full_cloud->points[i].z - p_full_cloud->points[i - 1].z) >
+//            1e-7)) {
+//         p_surface_cloud->push_back((*p_full_cloud)[i]);
+//         out_cloud[lidar_msg->points[i].line]->push_back(p_full_cloud->points[i]);
+//       }
+//     }
+//   }
 
-  if (out_cloud[0]->size() <= 7) {
-    return;
-  }
+//   if (out_cloud[0]->size() <= 7) {
+//      LOG(WARNING) << "[ParsePointCloud] input cloud size too small "
+//                  << out_cloud[0]->size();
+//     return;
+//   }
 
-  for (int j = 0; j < n_scan; j++) {
-    RTPointCloud& pl = *(out_cloud[j]);
-    std::vector<orgtype>& types = typess[j];
-    int plsize = pl.size();
-    types.resize(plsize);
-    plsize--;
-    for (int i = 0; i < plsize; i++) {
-      types[i].range = sqrt(pl[i].x * pl[i].x + pl[i].y * pl[i].y);
-      vx = pl[i].x - pl[i + 1].x;
-      vy = pl[i].y - pl[i + 1].y;
-      vz = pl[i].z - pl[i + 1].z;
-      types[i].dista = vx * vx + vy * vy + vz * vz;
-      // std::cout<<vx<<" "<<vx<<" "<<vz<<" "<<std::endl;
-    }
-    // plsize++;
-    types[plsize].range =
-        sqrt(pl[plsize].x * pl[plsize].x + pl[plsize].y * pl[plsize].y);
+//   p_corner_cloud->push_back((*p_full_cloud)[0]);
 
-    ///
-    giveFeature(pl, types, *p_corner_cloud, *p_surface_cloud);
-  }
+//   // for (int j = 0; j < n_scan; j++) {
+//   //   RTPointCloud& pl = *(out_cloud[j]);
+//   //   std::vector<orgtype>& types = typess[j];
+//   //   int plsize = pl.size();
+//   //   types.resize(plsize);
+//   //   plsize--;
+//   //   for (int i = 0; i < plsize; i++) {
+//   //     types[i].range = sqrt(pl[i].x * pl[i].x + pl[i].y * pl[i].y);
+//   //     vx = pl[i].x - pl[i + 1].x;
+//   //     vy = pl[i].y - pl[i + 1].y;
+//   //     vz = pl[i].z - pl[i + 1].z;
+//   //     types[i].dista = vx * vx + vy * vy + vz * vz;
+//   //     // std::cout<<vx<<" "<<vx<<" "<<vz<<" "<<std::endl;
+//   //   }
+//   //   // plsize++;
+//   //   types[plsize].range =
+//   //       sqrt(pl[plsize].x * pl[plsize].x + pl[plsize].y * pl[plsize].y);
 
-  PublishCloud("map");
-}
+//   //   ///
+//   //   giveFeature(pl, types, *p_corner_cloud, *p_surface_cloud);
+//   // }
+
+//   PublishCloud("map");
+// }
 
 void LivoxFeatureExtraction::clearState() {
   vx = 0;

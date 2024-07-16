@@ -172,9 +172,9 @@ class MsgManager {
     data.gyro = Eigen::Vector3d(imu_msg->angular_velocity.x,
                                 imu_msg->angular_velocity.y,
                                 imu_msg->angular_velocity.z);
-    data.accel = Eigen::Vector3d(imu_msg->linear_acceleration.x,
-                                 imu_msg->linear_acceleration.y,
-                                 imu_msg->linear_acceleration.z);
+    data.accel = Eigen::Vector3d(imu_msg->linear_acceleration.x * 9.8,
+                                 imu_msg->linear_acceleration.y * 9.8,
+                                 imu_msg->linear_acceleration.z * 9.8); // mid360回復 m/s^2
     Eigen::Vector4d q(imu_msg->orientation.w, imu_msg->orientation.x,
                       imu_msg->orientation.y, imu_msg->orientation.z);
     if (std::fabs(q.norm() - 1) < 0.01) {

@@ -1,5 +1,5 @@
-lidar0:
-    topic: /livox/lidar
+lidar0: #mid360
+    topic: /livox/lidar 
     is_livox: true
     Extrinsics:
         time_offset: 0.000
@@ -12,8 +12,8 @@ num_lidars: 1
 
 ################### FeatureExtraction ###################
 Livox:
-    n_scan: 4
-    blind: 0.1      #0.5 Livox Avia cannot precisely detect objects which are less than 1m away.
+    n_scan: 6
+    blind: 0.75      #0.5 Livox Avia cannot precisely detect objects which are less than 1m away.
     inf_bound: 4     #10  Livox Avia can precisely detect objects 450m away.
     group_size: 8
     disA: 0.01

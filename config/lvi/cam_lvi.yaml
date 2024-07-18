@@ -21,7 +21,7 @@ projection_parameters:
    gamma2: 669.1450614220616
    u0: 377.9459252967363
    v0: 279.63655686698144
-fisheye_mask_path: "/home/hhh/project_hhh/temp/slam/lvio/src/clic/config/lvi/fisheye_mask_720x540.jpg"
+fisheye_mask_path: "/home/hhh/project_hhh/temp/slam/clic_ws/src/Clic-mid360/config/lvi/fisheye_mask_720x540.jpg"
 
 focal_length: 460
 

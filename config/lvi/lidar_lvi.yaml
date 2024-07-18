@@ -5,9 +5,9 @@ lidar0:
         time_offset: 0.000
         # LiDAR in IMU
         Trans: [0.0, 0.0, 0.0]
-        Rot: [1, 0, 0,
+        Rot: [-1, 0, 0,
             0, 1, 0,
-            0, 0, 1]
+            0, 0, -1]
 num_lidars: 1
 
 ################### FeatureExtraction ###################

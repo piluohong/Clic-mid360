@@ -2,16 +2,16 @@
 ## 1 : Odometry_Offline   |  2 : Odometry_Online
 mode: 2
 
-config_path: /home/hhh/project_hhh/temp/slam/lvio/src/clic/config
+config_path: /home/hhh/project_hhh/temp/slam/clic_ws/src/Clic-mid360/config
 
 imu_yaml: /lvi/imu_lvi.yaml
 camera_yaml: /lvi/cam_lvi.yaml
 lidar_odom_yaml: /lvi/lidar_lvi.yaml
 
 ## Bag Param
-bag_path: /mnt/e/hhh_datasets/handheld.bag
+bag_path: /mnt/e/hhh_datasets/garden.bag
 
-bag_start: 0.
+bag_start: 0
 bag_durr: -1
 
 opt_time_offset: false

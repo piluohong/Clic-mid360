@@ -2,7 +2,7 @@
 ## 1 : Odometry_Offline   |  2 : Odometry_Online
 mode: 2
 
-config_path: /home/hhh/project_hhh/temp/slam/clic_ws/src/clic/config
+config_path: /home/hhh/project_hhh/temp/slam/clic_ws/src/Clic-mid360/config
 
 imu_yaml: /livox/imu_livox.yaml
 

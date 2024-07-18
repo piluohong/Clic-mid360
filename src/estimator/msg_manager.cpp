@@ -21,7 +21,7 @@
 #include <utils/parameter_struct.h>
 
 #include <pcl/common/transforms.h>
-
+#include <Eigen/Core>
 namespace clic {
 
 MsgManager::MsgManager(const YAML::Node& node, ros::NodeHandle& nh)
@@ -505,8 +505,24 @@ void MsgManager::IMUMsgHandle(const sensor_msgs::Imu::ConstPtr& imu_msg) {
   }
 
   IMUData data;
-  IMUMsgToIMUData(imu_msg, data);
+  // IMUMsgToIMUData(imu_msg, data);
+  // 针对lvi-sam数据集
+  if(lidar_types.back() == VLP){
+    sensor_msgs::Imu imu_out = *imu_msg;
+    std::vector<double> vecRPY = {0, -1, 0, 1, 0, 0, 0, 0, 1};
+    Eigen::Matrix3d extRPY = Eigen::Map<const Eigen::Matrix<double, 3, 3, Eigen::RowMajor>>(vecRPY.data());
+    Eigen::Quaterniond extQRPY = Eigen::Quaterniond(extRPY).inverse();
+    Eigen::Quaterniond q_from(imu_out.orientation.w, imu_out.orientation.x, imu_out.orientation.y, imu_out.orientation.z);
+    Eigen::Quaterniond q_final = q_from * extQRPY;
+    imu_out.orientation.x = q_final.x();
+    imu_out.orientation.y = q_final.y();
+    imu_out.orientation.z = q_final.z();
+    imu_out.orientation.w = q_final.w();
 
+    IMUMsgToIMUData(imu_out,data);
+  }else{
+    IMUMsgToIMUData(*imu_msg, data);
+  }
   data.timestamp -= add_extra_timeoffset_s_;
 
   // for trajectory_manager

@@ -1,4 +1,5 @@
-<<<<<<个人学习，感谢浙大APRIL_LAB的开源工作
+# 个人学习，感谢浙大APRIL_LAB的开源工作:
+# 注意点：IMU初始化过程需要很小幅度或静态
 # CLIC
 
 **Continuous-Time Fixed-Lag Smoothing for LiDAR-Inertial-Camera SLAM**
